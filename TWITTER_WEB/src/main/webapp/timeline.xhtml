@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <ui:define name="metadata">
+        <ui:param name="title" value="Timeline"/> <!-- Automatic create breadCrumb and page title when param 'title' is provided. --> 
+
+        <style type="text/css">
+            .ui-datatable .ui-datatable-header {
+                text-align: right !important;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="description">
+        Timeline
+    </ui:define>
+
+    <ui:define name="body">
+        <h:form>
+            <p:focus context="@form"/>
+            <div class="box box-primary ui-g-12 ui-sm-12">
+                <div class="box-header with-border ui-g-12 ui-sm-12">
+
+                    <div class="ui-g-12 ui-sm-12">
+                        <div class="ui-material icon-left">
+                            <p:inputText id="user-icon" required="true" placeholder="User">
+                                <i id="fa" class="fa fa-2x fa-user" cols="50" />
+                            </p:inputText>
+                            <p:outputLabel id="label" for="user-icon" value="User"/>
+                            <p:message for="user-icon"/>
+                        </div>
+                    </div>
+
+                    <div class="ui-g-12 ui-sm-12">
+                        <div class="ui-material ui-g-12 ui-sm-12">
+                            <p:inputTextarea cols="50" rows="5" id="textarea" placeholder="¿What are you thinking?" required="true" />
+                            <p:outputLabel  for="textarea" value="¿What are you thinking?"/>
+                            <p:message for="textarea"/>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-4">
+                        <p:commandButton styleClass="btn btn-success btn-block" onclick="showBar()" 
+                                         value="Publicar" update="@form"/>
+                    </div>
+
+                    <p:spacer height="50"/>
+                </div>   
+                
+                <ui:repeat  var="t" value="#{MBTimeline.lstTweets}">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 ">
+                        <p:panel header="@ #{t.user}" styleClass="box-primary">
+                            <h:panelGrid columns="1">
+                                <h:panelGrid>
+                                    <h:outputText value= "#{t.contenido}" />
+                                </h:panelGrid>
+                            </h:panelGrid>
+
+                        </p:panel>
+                    </div>
+                </ui:repeat>
+            </div>
+        </h:form>
+    </ui:define>
+
+</ui:composition>
