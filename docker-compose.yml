@@ -1,0 +1,35 @@
+version: '3.3'
+    
+services:   
+   db:
+     image: mysql:5.7
+     volumes:
+       - db/:/var/lib/mysql
+     ports:
+       - "3306:3306"
+     environment:
+       MYSQL_ROOT_PASSWORD: root
+       MYSQL_DATABASE: twitter
+       MYSQL_USER: root
+       MYSQL_PASSWORD: root
+     restart: always
+       
+   server-twitter:
+     depends_on:
+       - db
+     image: dottogc/server-twitter:latest
+     ports:
+       - "8283:8080"
+     restart: always
+     
+     
+   web-twitter:
+     depends_on:
+       - server-twitter
+     image: dottogc/web-twitter:latest
+     ports:
+       - "8282:8080"
+     restart: always
+     
+     
+    
