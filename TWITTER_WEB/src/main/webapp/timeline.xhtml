@@ -20,7 +20,7 @@
     </ui:define>
 
     <ui:define name="body">
-        <h:form>
+        <h:form  id="form">
             <p:focus context="@form"/>
             <div class="box box-primary ui-g-12 ui-sm-12">
                 <p:panel id="panel" header="Write a tweet" style="margin-bottom:10px;">
@@ -35,35 +35,43 @@
                         </div>
                     </div>
 
+                    <div class="col-xs-4">
+                        <p:commandButton styleClass="btn btn-success btn-block"   action ="#{MBTimeline.getTweetsUsuario}" 
+                                         value="Ver Tweets" update="@form">
+                        </p:commandButton>
+                    </div>
+
                     <div class="ui-g-12 ui-sm-12">
                         <div class="ui-material ui-g-12 ui-sm-12">
-                            <p:inputTextarea   cols="50" rows="5" id="textarea" value="#{MBTimeline.contenido}" placeholder="¿What are you thinking?" required="true" />
-                            <p:outputLabel  for="textarea" value="¿What are you thinking?"/>
+                            <p:inputTextarea   cols="50" rows="5" id="textarea" value="#{MBTimeline.contenido}" placeholder="¿What are you thinking?" required="false" />
+                            <p:outputLabel  for="textarea" value="¿What are you thinking?" />
                             <p:message for="textarea"/>
                         </div>
                     </div>
 
                     <div class="col-xs-4">
-                        <p:commandButton styleClass="btn btn-success btn-block"  action="#{MBTimeline.insertar}" onclick="showBar()" 
-                                         value="Publicar" oncomplete="location.reload();">
+                        <p:commandButton styleClass="btn btn-success btn-block"  action="#{MBTimeline.insertar}"  
+                                         value="Publicar" update="@form" >
                         </p:commandButton>
                     </div>
 
                     <p:spacer height="50"/>
                 </p:panel>   
 
-                <ui:repeat  var="t" value="#{MBTimeline.lstTweets}">
-                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 ">
-                        <p:panel header="@ #{t.user}" styleClass="box-primary">
-                            <h:panelGrid columns="1">
-                                <h:panelGrid>
-                                    <h:outputText value= "#{t.contenido}" />
-                                </h:panelGrid>
-                            </h:panelGrid>
 
-                        </p:panel>
-                    </div>
-                </ui:repeat>
+                    <ui:repeat  var="t" value="#{MBTimeline.lstTweets}">
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 ">
+                            <p:panel header="@ #{t.user}" styleClass="box-primary">
+                                <h:panelGrid columns="1">
+                                    <h:panelGrid>
+                                        <h:outputText value= "#{t.contenido}" />
+                                    </h:panelGrid>
+                                </h:panelGrid>
+
+                            </p:panel>
+                        </div>
+                    </ui:repeat>
+
             </div>
         </h:form>
     </ui:define>

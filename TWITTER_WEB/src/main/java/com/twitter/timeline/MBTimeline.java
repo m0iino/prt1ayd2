@@ -81,15 +81,22 @@ public class MBTimeline implements Serializable {
     }
 
     public MBTimeline() {
+        if (username.isEmpty()) {
+            getTweets();
+        } else {
+            getTweetsUsuario();
+        }
+
     }
 
-    @PostConstruct
-    public void postCon() {
+// @PostConstruct
+    public void getTweets() {
         /* if ((!FacesContext.getCurrentInstance().getExternalContext().getSessionMap().isEmpty()) && (FacesContext.getCurrentInstance().getExternalContext().getSessionMap() != null)) {
              usuario = (objUsuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
         }*/
         final int timeout = 400000;//1200000;//300,000 5 minutos
         String output = "";
+        lstTweets = new ArrayList();
         try {
 
             objConstantes cons = new objConstantes();
@@ -161,6 +168,92 @@ public class MBTimeline implements Serializable {
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            System.out.println("ERROR --->" + ex.getMessage());
+            msgP = new FacesMessage(FacesMessage.SEVERITY_WARN, "Timeline", "No es posible mostrar el timeline");
+            FacesContext.getCurrentInstance().addMessage(null, msgP);
+        }
+    }
+
+    public void getTweetsUsuario() {
+        /* if ((!FacesContext.getCurrentInstance().getExternalContext().getSessionMap().isEmpty()) && (FacesContext.getCurrentInstance().getExternalContext().getSessionMap() != null)) {
+             usuario = (objUsuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
+        }*/
+        lstTweets = new ArrayList();
+
+        final int timeout = 400000;//1200000;//300,000 5 minutos
+        String output = "";
+        try {
+
+            objConstantes cons = new objConstantes();
+
+            Locale locale = Locale.getDefault();
+            ResourceBundle datos = ResourceBundle.getBundle("LogIn", locale);
+
+            String urlmp = datos.getString("url");
+            urlmp += "getTweetsUsuario/";
+
+            String json = "{\n"
+                    + "  \"key\": \"" + cons.getKey() + "\",\n"
+                    + "\"user\": \"" + username + "\"}";
+
+            URL targetUrl = new URL(urlmp);
+
+            HttpURLConnection httpConnection = (HttpURLConnection) targetUrl.openConnection();
+            httpConnection.setDoOutput(true);
+            httpConnection.setRequestMethod("POST");
+            httpConnection.setRequestProperty("Content-Type", "application/json");
+
+            OutputStream outputStream = httpConnection.getOutputStream();
+            outputStream.write(json.getBytes("UTF-8"));
+            outputStream.flush();
+
+            if (httpConnection.getResponseCode() != 202) {
+                msgP = new FacesMessage(FacesMessage.SEVERITY_INFO, "Timeline", "No es posible mostrar los tweets");
+                FacesContext.getCurrentInstance().addMessage(null, msgP);
+
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + httpConnection.getResponseCode());
+
+            } else {
+                //OBTENER EL RESPONSE EL UTF-8
+                BufferedReader responseBuffer = new BufferedReader(new InputStreamReader(
+                        (httpConnection.getInputStream()), "UTF8"));
+
+                output = responseBuffer.readLine();
+
+                JSONObject obj = new JSONObject(output);
+
+                String msgPs = obj.getString("msg");
+                boolean error = obj.getBoolean("error");
+
+                if (!error) {
+                    msgP = new FacesMessage(FacesMessage.SEVERITY_INFO, "Timeline", msgPs);
+                    FacesContext.getCurrentInstance().addMessage(null, msgP);
+                    JSONArray tweets = obj.getJSONArray("detalle");
+                    for (int i = 0; i < tweets.length(); i++) {
+                        JSONObject producto = tweets.getJSONObject(i);
+                        objTweet objTweet = new objTweet();
+                        objTweet.setUser(producto.getString("username"));
+                        objTweet.setContenido(producto.getString("contenido"));
+                        //   objTweet.setFecha(producto.getString("fecha"));
+                        //   objTweet.setHora(producto.getString("hora"));
+
+                        lstTweets.add(objTweet);
+                    }
+
+                } else {
+                    msgP = new FacesMessage(FacesMessage.SEVERITY_WARN, "Timeline", msgPs);
+                    FacesContext.getCurrentInstance().addMessage(null, msgP);
+                }
+
+            }
+
+            httpConnection.disconnect();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.out.println("ERROR --->" + ex.getMessage());
+
             msgP = new FacesMessage(FacesMessage.SEVERITY_WARN, "Timeline", "No es posible mostrar el timeline");
             FacesContext.getCurrentInstance().addMessage(null, msgP);
         }
@@ -215,6 +308,8 @@ public class MBTimeline implements Serializable {
                 boolean error = obj.getBoolean("error");
 
                 if (!error) {
+
+                    getTweetsUsuario();
                     username = "";
                     contenido = "";
                     msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Tweet publicado");
@@ -231,6 +326,8 @@ public class MBTimeline implements Serializable {
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            System.out.println("ERROR --->" + ex.getMessage());
+
             msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Error", "No es posible actualizar la información");
             FacesContext.getCurrentInstance().addMessage("msg", msg);
         }
