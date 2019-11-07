@@ -21,7 +21,7 @@ public class conexionDb {
         Connection conn = null;
         try {
 
-            String connString = "jdbc:mysql://127.0.0.1:3306/twitter?verifyServerCertificate=false&useSSL=false";
+            String connString = "jdbc:mysql://db:3306/twitter?verifyServerCertificate=false&useSSL=false";
             String user = "root";
             String pass = "root";
             Class.forName("com.mysql.jdbc.Driver");

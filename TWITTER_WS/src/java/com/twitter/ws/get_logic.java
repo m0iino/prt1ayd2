@@ -47,6 +47,25 @@ public class get_logic {
     }
 
     @POST
+    @Path("/getTweetsUsuario/")
+    @Consumes(MediaType.APPLICATION_JSON + ENCODING)
+    @Produces(MediaType.APPLICATION_JSON + ENCODING)
+    public Response getTweetsUsuario(objTweet obj) {//variable
+        try {
+            if (go.key.contentEquals(obj.getKey())) {
+                json = logic_methods.getTweetsUsuario(obj);
+            } else {
+                json.put("error", true);
+                json.put("msg", "No valida key");
+            }
+        } catch (Exception e) {
+            json.put("error", true);
+            json.put("msg", "No valida servicio");
+        }
+        return Response.status(Response.Status.ACCEPTED).header("Content-Type", "application/json;charset=UTF-8").entity(json.toJSONString()).type(MediaType.APPLICATION_JSON).build();
+    }
+
+    @POST
     @Path("/insertTweet/")
     @Consumes(MediaType.APPLICATION_JSON + ENCODING)
     @Produces(MediaType.APPLICATION_JSON + ENCODING)

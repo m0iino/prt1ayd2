@@ -54,7 +54,72 @@ public class logic_methods {
                     + "FECHA FECHA,\n"
                     + "HORA HORA\n"
                     + "FROM tweet\n"
-                    + "ORDER BY ID";
+                    + "ORDER BY ID DESC";
+            System.out.println("obtiene tweets => " + query);
+
+            prstm = Conn.createStatement();
+            result = prstm.executeQuery(query);
+            while (result.next()) {
+
+                objJson.put("username", result.getString("USERNAME"));
+                objJson.put("contenido", result.getString("CONTENIDO"));
+
+                lstjsonx.add(objJson);
+                objJson = new JSONObject();
+            }
+
+            json.put("detalle", lstjsonx);
+            json.put("error", false);
+            json.put("msg", "listado de tweets");
+
+            //    }
+            result.close();
+            prstm.close();
+        } catch (SQLException e) {
+            json.put("error", true);
+            json.put("msg", "Ocurrió un error en la aplicación");
+        } finally {
+            try {
+                Conn.close();
+            } catch (SQLException e) {
+                Conn = null;
+            }
+            result = null;
+            prstm = null;
+        }
+        return json;
+    }
+
+    public static JSONObject getTweetsUsuario(objTweet obj) throws SQLException, ParseException, ClassNotFoundException {
+
+        Connection Conn = null;
+        JSONObject json = new JSONObject();
+        JSONObject objJson = new JSONObject();
+        List<JSONObject> lstjsonx = new ArrayList<>();
+
+        Statement prstm = null;
+        ResultSet result = null;
+        String query = "";
+
+        try {
+
+            Conn = conexionDb.getConn();
+
+            /*  query = "select UID_USER from LOGIN_TOKEN where TOKEN='" + obj.getToken() + "'";
+            //System.out.println("valida token => " + query);
+            prstm = Conn.createStatement();
+            result = prstm.executeQuery(query);
+            String top = "";
+            while (result.next()) {*/
+            query = "SELECT USERNAME USERNAME,\n"
+                    + "CONTENIDO CONTENIDO,\n"
+                    + "ID ID,\n"
+                    + "FECHA FECHA,\n"
+                    + "HORA HORA\n"
+                    + "FROM tweet\n"
+                    + "WHERE USERNAME = '" + obj.getUser() + "'\n"
+                    + "ORDER BY ID DESC";
+            System.out.println("obtiene tweets => " + query);
 
             prstm = Conn.createStatement();
             result = prstm.executeQuery(query);
@@ -105,30 +170,83 @@ public class logic_methods {
 
             Conn = conexionDb.getConn();
 
-            query2 = "Insert into tweet (\n"
-                    + "CONTENIDO,\n"
-                    + "USERNAME,\n"
-                    + "FECHA,\n"
-                    + "HORA) \n"
-                    + "values (\n"
-                    + "'" + obj.getTweet() + "',\n"
-                    + "'" + obj.getUser() + "',\n"
-                    + "sysdate(),\n"
-                    + "sysdate())";
+            query = "select USERNAME from user where USERNAME='" + obj.getUser() + "'";
+            //System.out.println("valida token => " + query);
+            prstm = Conn.createStatement();
+            result = prstm.executeQuery(query);
+            boolean top = false;
+            while (result.next()) {
+                top = true;
 
-            System.out.println("inserta tweet => " + query2);
-            prstm2 = Conn.createStatement();
-            result2 = prstm2.executeUpdate(query2);
-            if (result2 < 1) {
-                json.put("error", true);
-                json.put("msg", "Error al actualizar");
-            } else {
-                json.put("error", false);
-                json.put("msg", "Tweet publicado");
+                query2 = "Insert into tweet (\n"
+                        + "CONTENIDO,\n"
+                        + "USERNAME,\n"
+                        + "FECHA,\n"
+                        + "HORA) \n"
+                        + "values (\n"
+                        + "'" + obj.getTweet() + "',\n"
+                        + "'" + obj.getUser() + "',\n"
+                        + "sysdate(),\n"
+                        + "sysdate())";
+
+                System.out.println("inserta tweet => " + query2);
+                prstm2 = Conn.createStatement();
+                result2 = prstm2.executeUpdate(query2);
+                if (result2 < 1) {
+                    json.put("error", true);
+                    json.put("msg", "Error al actualizar");
+                } else {
+                    json.put("error", false);
+                    json.put("msg", "Tweet publicado");
+                }
+
+            }
+
+            if (!top) {
+                query = "Insert into user (\n"
+                        + "USERNAME) \n"
+                        + "values (\n"
+                        + "'" + obj.getUser() + "')\n";
+
+                System.out.println("inserta usuario => " + query);
+                prstm = Conn.createStatement();
+                result2 = prstm.executeUpdate(query);
+                if (result2 < 1) {
+                    json.put("error1", true);
+                    json.put("msg1", "Error al insertar usuario");
+                } else {
+                    json.put("error1", false);
+                    json.put("msg1", "Usuario insertado");
+                }
+
+                query2 = "Insert into tweet (\n"
+                        + "CONTENIDO,\n"
+                        + "USERNAME,\n"
+                        + "FECHA,\n"
+                        + "HORA) \n"
+                        + "values (\n"
+                        + "'" + obj.getTweet() + "',\n"
+                        + "'" + obj.getUser() + "',\n"
+                        + "sysdate(),\n"
+                        + "sysdate())";
+
+                System.out.println("inserta tweet => " + query2);
+                prstm2 = Conn.createStatement();
+                result2 = prstm2.executeUpdate(query2);
+                if (result2 < 1) {
+                    json.put("error", true);
+                    json.put("msg", "Error al insertar tweet");
+                } else {
+                    json.put("error", false);
+                    json.put("msg", "Tweet publicado");
+                }
+
             }
 
             result.close();
             prstm.close();
+
+            prstm2.close();
 
         } catch (SQLException e) {
             json.put("error", true);
@@ -141,9 +259,9 @@ public class logic_methods {
             }
             result = null;
             prstm = null;
-             return json;
+            return json;
         }
-       
+
     }
 
 }
